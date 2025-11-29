@@ -6,10 +6,10 @@ let isLocalMode = false;
 let currentEditorId = null;
 
 // CRITICAL FIX: CSS injection to bypass browser cache
-(function() {
+(function () {
     const style = document.createElement('style');
     style.id = 'critical-layout-fix';
-    style.textContent = 
+    style.textContent = `
         .enhance-layout { display: flex !important; height: 100%; width: 100%; }
         .enhance-sidebar { width: 300px !important; flex: 0 0 300px !important; border-right: 1px solid var(--border); display: flex; flex-direction: column; background: var(--surface); overflow-y: auto; }
         .btn { border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 6px; }
@@ -22,7 +22,7 @@ let currentEditorId = null;
         .enhance-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; }
         .enhance-item:hover { background: #e9ecef; }
         .enhance-item.active { background: #e7f1ff; border-left: 4px solid #007bff; }
-    ;
+    `;
     document.head.appendChild(style);
     console.log('Critical CSS fix injected');
 })();
@@ -44,8 +44,8 @@ function switchTab(tabId) {
 function toggleSelectAll() {
     const checkboxes = document.querySelectorAll('.post-check');
     const allChecked = Array.from(checkboxes).every(c => c.checked);
-    
-checkboxes.forEach(c => c.checked = !allChecked);
+
+    checkboxes.forEach(c => c.checked = !allChecked);
 }
 
 function executeBulk(action) {
