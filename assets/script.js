@@ -305,6 +305,67 @@ async function runAiEnhance() {
     }
 }
 
+async function updateAndNext() {
+    if (!currentWpPost) return alert("No post selected!");
+
+    const btn = document.getElementById('btn-update-next') || event.target;
+    const originalText = btn.innerText;
+    btn.innerText = "Updating...";
+    btn.disabled = true;
+
+    const title = document.getElementById('edit-title').value;
+    const category = document.getElementById('edit-category').value;
+    const content = document.getElementById('edit-content').innerHTML;
+
+    try {
+        const res = await fetch('/api_wp_update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: currentWpPost.id,
+                title: title,
+                category: category,
+                content: content
+            })
+        });
+        const data = await res.json();
+
+        if (data.status === 'ok') {
+            logDebug(`Updated post ${currentWpPost.id}: "${title}"`);
+
+            // Find next uncategorized post
+            const currentIndex = wpPosts.findIndex(p => p.id === currentWpPost.id);
+            let nextPost = null;
+
+            for (let i = currentIndex + 1; i < wpPosts.length; i++) {
+                if (!wpPosts[i].categories || wpPosts[i].categories.length === 0) {
+                    nextPost = wpPosts[i];
+                    break;
+                }
+            }
+
+            if (nextPost) {
+                loadWpPost(nextPost.id);
+                logDebug(`Loaded next post: ${nextPost.id}`);
+            } else {
+                alert("No more uncategorized posts!");
+                logDebug("No more uncategorized posts in list");
+            }
+        } else {
+            alert(`Error: ${data.error || 'Unknown error'}`);
+            logDebug(`Update error: ${data.error}`);
+        }
+    } catch (e) {
+        console.error(e);
+        logDebug(`Update failed: ${e}`);
+        alert(`Update failed: ${e.message}`);
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
+
 // ROLLING LOGIC
 let rollingQueue = [];
 let rollingActive = false;
