@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Facebook Curator & Uploader</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css?t=1764373877">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="script.js"></script>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-row-top">
+            <div style="font-weight: 700; font-size: 18px; color: var(--text-main);">FB Curator</div>
+            <button class="btn btn-danger" style="padding: 4px 12px; font-size: 12px;" onclick="killServer()">Kill
+                Server</button>
+        </div>
+
+        <div class="tab-bar">
+            <div id="btn-local" class="tab active" onclick="switchTab('local')">Local Curator</div>
+            <div id="btn-enhance" class="tab" onclick="switchTab('enhance')">WP Enhance</div>
+            <div id="btn-live" class="tab" onclick="switchTab('live')">SNS Import</div>
+        </div>
+
+        <div class="header-row-bottom">
+            <div class="filter-group">
+                <input type="text" id="f_search" class="filter-input" style="width:180px;"
+                    placeholder="Search content..." value="{F_SEARCH}" onkeydown="handleSearchKey(event)">
+                <label class="opt-label" style="font-size: 12px;">
+                    <input type="checkbox" id="f_include_proc" {F_INCLUDE_PROC_CHECKED}> Inc. Processed
+                </label>
+            </div>
+            <div class="filter-group">
+                <input type="text" id="f_start" class="filter-input" style="width:80px;" placeholder="Start Idx"
+                    value="{F_START}">
+            </div>
+            <div class="filter-group">
+                <select id="f_media" class="filter-input" style="width:100px;">
+                    <option value="" {SEL_MEDIA_}>All Media</option>
+                    <option value="images" {SEL_MEDIA_IMAGES}>Images Only</option>
+                    <option value="videos" {SEL_MEDIA_VIDEOS}>Videos Only</option>
+                </select>
+            </div>
+            <button class="filter-btn" onclick="applyFilters()">Apply Filters</button>
+
+            <div class="stats-box">
+                <div class="stat-item"><span id="stat-rem" class="stat-val">{STAT_REMAINING}</span><span
+                        class="stat-lbl">Left</span></div>
+                <div class="stat-sep"></div>
+                <div class="stat-item"><span id="stat-rem-img" class="stat-val">{STAT_REM_IMGS}</span><span
+                        class="stat-lbl">Imgs</span></div>
+                <div class="stat-item"><span id="stat-rem-vid" class="stat-val">{STAT_REM_VIDS}</span><span
+                        class="stat-lbl">Vids</span></div>
+                <div class="stat-sep"></div>
+                <div class="stat-item"><span id="stat-q-media" class="stat-val"
+                        style="color:var(--success);">{STAT_Q_MEDIA}</span><span class="stat-lbl">Q.Med</span></div>
+                <div class="stat-item"><span id="stat-q-size" class="stat-val">{STAT_Q_SIZE}</span><span
+                        class="stat-lbl">Size</span></div>
+                <div class="stat-sep"></div>
+                <div class="stat-item"><span id="stat-ai-calls" class="stat-val">0</span><span class="stat-lbl">AI
+                        Calls</span></div>
+                <div class="stat-item"><span id="stat-ai-tokens" class="stat-val">0</span><span
+                        class="stat-lbl">Tokens</span></div>
+            </div>
+
+            <div class="opts-group">
+                <label class="opt-label" style="color: var(--danger);">
+                    <input type="checkbox" id="force-today"> Force Today
+                </label>
+                <label class="opt-label">
+                    <input type="checkbox" id="auto-process-rest" checked> Auto-Process Rest
+                </label>
+                <label class="opt-label">
+                    <input type="checkbox" id="hide-processed-chk" {HIDE_CHECKED} onchange="applyFilters()"> Hide
+                    Processed
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="local" class="tab-content active">
+        <div class="container">
+            <div id="posts-wrapper">
+                {POSTS_HTML}
+            </div>
+            <div class="load-more-container">
+                <button id="load-more-btn" class="btn btn-proc" style="margin: 20px auto; display: block;"
+                    onclick="loadMorePosts()">Load More Posts</button>
+            </div>
+        </div>
+        <div class="floating-upload">
+            <button class="fab-btn fab-upload" onclick="executeBulk('queue')">
+                <span>&#8679;</span> Upload Selected
+            </button>
+        </div>
+        <div class="floating-bottom">
+            <button class="fab-btn fab-select" onclick="toggleSelectAll()">
+                <span>&#9745;</span> Select All
+            </button>
+            <button class="fab-btn fab-skip" onclick="executeBulk('process')">
+                <span>&#10006;</span> Skip Selected
+            </button>
+        </div>
+    </div>
+
+    <div id="enhance" class="tab-content">
+        <div class="enhance-layout">
+            <div class="enhance-sidebar">
+                <div style="padding:20px; border-bottom:1px solid var(--border); background:var(--background);">
+                    <button id="btn-rolling-toggle" class="btn btn-magic"
+                        style="width:100%; margin-bottom:16px; justify-content: center;"
+                        onclick="toggleRollingMode()">Start Rolling Auto-Pilot</button>
+
+                    <button id="wp-fetch-btn" class="btn btn-primary" style="width:100%; justify-content: center;"
+                        onclick="fetchWpPosts(true)">Fetch Posts</button>
+
+                    <label style="font-size:11px; display:block; margin-top:5px; margin-bottom:5px; text-align:center;">
+                        <input type="checkbox" id="wp-filter-uncat"> Uncategorized Only
+                    </label>
+
+                    <div id="rolling-controls"
+                        style="display:none; margin-top:10px; border-top: 1px solid var(--border); padding-top: 10px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span style="font-size:11px; font-weight:600;">Buffer:</span>
+                            <input type="number" id="rolling-buffer-size" value="5" style="width:40px; font-size:11px;">
+                        </div>
+                        <label style="font-size:11px; display:block; margin-bottom:5px;">
+                            <input type="checkbox" id="pause-rolling" checked> Pause Auto-Pilot
+                        </label>
+                        <label style="font-size:11px; display:block; margin-bottom:5px;">
+                            <input type="checkbox" id="rolling-uncat-only"> Uncategorized Only
+                        </label>
+                        <button class="btn btn-danger" style="width:100%; font-size:11px;"
+                            onclick="clearRollingQueue()">Clear Queue</button>
+                    </div>
+                </div>
+                <div id="rolling-container" style="display:none; flex-grow:1; overflow-y:auto; padding:0 10px;">
+                    <div id="rolling-list"></div>
+                </div>
+
+                <!-- Debug Log in Sidebar -->
+                <div id="debug-container">
+                    <div
+                        style="font-size: 11px; font-weight: 600; margin-bottom: 5px; display:flex; justify-content:space-between;">
+                        <span>Debug Log</span>
+                        <span id="rolling-status-indicator" style="color:var(--primary); font-weight:bold;">IDLE</span>
+                    </div>
+                    <div id="debug-log"
+                        style="flex-grow:1; font-size: 10px; font-family: monospace; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); overflow-y: auto; padding: 5px; margin-bottom:5px;">
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn btn-proc" style="flex:1; font-size:10px; padding:4px;"
+                            onclick="copyDebugLog()">Copy</button>
+                        <button class="btn btn-proc" style="flex:1; font-size:10px; padding:4px;"
+                            onclick="document.getElementById('debug-log').innerText=''">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="enhance-main">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:0 10px;">
+                    <div style="font-size:12px; font-weight:600;">WordPress Posts <span id="wp-stat-total"
+                            style="color:var(--text-muted); font-weight:400;">(0)</span></div>
+                    <div style="font-size:11px; color:var(--text-muted);">Uncategorized: <span
+                            id="wp-stat-uncat">0</span></div>
+                </div>
+                <div id="wp-post-list" class="enhance-list"></div>
+
+                <div id="enhance-single-view" style="display:flex; flex-direction:column; height:100%;">
+                    <div class="enhance-card">
+                        <div class="editor-row">
+                            <label class="editor-label">Title</label>
+                            <input type="text" id="edit-title" class="editor-input">
+                        </div>
+                        <div class="editor-row">
+                            <label class="editor-label">Category</label>
+                            <select id="edit-category" class="editor-select"></select>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button id="btn-ai" class="btn btn-magic" onclick="runAiEnhance()">✨ Magic Enhance</button>
+                            <button class="btn btn-success" style="background:var(--success); color:white;"
+                                onclick="alert('Save not implemented in this demo')">Save Changes</button>
+                        </div>
+                    </div>
+
+                    <div class="enhance-card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                        <div
+                            style="display:flex; justify-content:space-between; margin-bottom:16px; align-items: center;">
+                            <span class="editor-label">Content</span>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn btn-proc" style="padding:4px 8px; font-size: 11px;"
+                                    onclick="navigator.clipboard.writeText(document.getElementById('edit-content').innerText)">Copy</button>
+                                <button class="btn btn-proc" style="padding:4px 8px; font-size: 11px;"
+                                    onclick="document.getElementById('edit-content').innerText=''">Clear</button>
+                                <button class="btn btn-proc" style="padding:6px 12px; font-size: 12px;"
+                                    onclick="distributeMedia()">Distribute Media</button>
+                            </div>
+                        </div>
+                        <div id="edit-content" class="content-preview" contenteditable="true"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="live" class="tab-content">
+        <div class="container" style="display: flex; justify-content: center;">
+            <div class="live-box" style="width: 100%; max-width: 600px;">
+                <h2 style="margin-bottom: 10px;">Import Single SNS Post</h2>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">Paste a Facebook link below. We will
+                    try to
+                    read the text and image.</p>
+                <input type="text" id="single_link_url" class="live-input" placeholder="Paste URL here...">
+                <br>
+                <button id="import-btn" class="live-btn" onclick="importSingleLink()">Fetch Post</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
