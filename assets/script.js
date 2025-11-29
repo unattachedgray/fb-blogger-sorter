@@ -5,28 +5,6 @@ let currentWpPost = null;
 let isLocalMode = false;
 let currentEditorId = null;
 
-// CRITICAL FIX: CSS injection to bypass browser cache
-(function () {
-    const style = document.createElement('style');
-    style.id = 'critical-layout-fix';
-    style.textContent = `
-        .enhance-layout { display: flex !important; height: 100%; width: 100%; }
-        .enhance-sidebar { width: 300px !important; flex: 0 0 300px !important; border-right: 1px solid var(--border); display: flex; flex-direction: column; background: var(--surface); overflow-y: auto; }
-        .btn { border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-primary { background: #007bff !important; color: white !important; }
-        .btn-primary:hover { background: #0056b3 !important; }
-        .btn-magic { background: #6f42c1 !important; color: white !important; }
-        .btn-magic:hover { background: #5a32a3 !important; }
-        .btn-proc { background: #e2e6ea !important; color: #212529 !important; }
-        .btn-success { background: #28a745 !important; color: white !important; }
-        .enhance-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; }
-        .enhance-item:hover { background: #e9ecef; }
-        .enhance-item.active { background: #e7f1ff; border-left: 4px solid #007bff; }
-    `;
-    document.head.appendChild(style);
-    console.log('Critical CSS fix injected');
-})();
-
 // UI Helpers
 function switchTab(tabId) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -36,8 +14,17 @@ function switchTab(tabId) {
 
     localStorage.setItem('fb_curator_active_tab', tabId);
 
-    if (tabId === 'enhance' && wpPosts.length === 0) {
-        fetchWpPosts();
+    // Toggle Header Controls
+    const localHeader = document.getElementById('header-local-controls');
+    const enhanceHeader = document.getElementById('header-enhance-controls');
+
+    if (tabId === 'enhance') {
+        if (localHeader) localHeader.style.display = 'none';
+        if (enhanceHeader) enhanceHeader.style.display = 'flex';
+        if (wpPosts.length === 0) fetchWpPosts();
+    } else {
+        if (localHeader) localHeader.style.display = 'flex';
+        if (enhanceHeader) enhanceHeader.style.display = 'none';
     }
 }
 

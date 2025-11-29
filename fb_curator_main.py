@@ -64,6 +64,19 @@ class CuratorHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json({'status': 'dying'})
                 return
 
+            if self.path == '/api_gemini_enhance':
+                text = body.get('text', '')
+                api_key = body.get('gemini_key', '')
+                categories = body.get('categories', [])
+                
+                title, cat_id, _ = ai_mod.call_gemini_ai(text, [], api_key, categories)
+                
+                self.send_json({
+                    'suggested_title': title,
+                    'suggested_category_id': cat_id
+                })
+                return
+
             self.send_error(404)
             
         except Exception as e:
