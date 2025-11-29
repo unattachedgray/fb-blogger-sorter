@@ -206,6 +206,7 @@ async function fetchWpPosts(force = false) {
 
             logDebug(`Fetched ${wpPosts.length} posts and ${wpCategories.length} categories.`);
             renderWpList();
+            populateCategories();
 
             // Auto-trigger Batch Optimization in background
             runBatchOptimize(true);
@@ -213,36 +214,6 @@ async function fetchWpPosts(force = false) {
             if (btn) {
                 btn.disabled = false;
                 btn.innerText = "Fetch Posts";
-            }
-
-            const sel = document.getElementById('edit-category');
-            if (sel) {
-                sel.innerHTML = `<option value="">-- Select Category --</option>`;
-                sel.innerHTML += `<option value="NEW_CAT_OPTION">➕ New Category...</option>`;
-                wpCategories.forEach(c => {
-                    sel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                });
-
-                sel.onchange = function () {
-                    if (this.value === 'NEW_CAT_OPTION') {
-                        const newCat = prompt("Enter new category name:");
-                        if (newCat) {
-                            const tempVal = "NEW:" + newCat;
-                            const tempOpt = document.createElement('option');
-                            tempOpt.value = tempVal;
-                            tempOpt.innerText = "NEW: " + newCat;
-                            // Insert after the "New Category..." option (index 1)
-                            if (this.options.length > 1) {
-                                this.insertBefore(tempOpt, this.options[2]);
-                            } else {
-                                this.appendChild(tempOpt);
-                            }
-                            this.value = tempVal;
-                        } else {
-                            this.value = "";
-                        }
-                    }
-                };
             }
         } catch (fetchErr) {
             if (fetchErr.name === 'AbortError') {
@@ -260,6 +231,19 @@ async function fetchWpPosts(force = false) {
             btn.innerText = "Fetch Error";
         }
     }
+}
+
+function populateCategories() {
+    const datalist = document.getElementById('category-list');
+    if (!datalist) return;
+
+    datalist.innerHTML = '';
+    wpCategories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.name;
+        option.setAttribute('data-id', cat.id);
+        datalist.appendChild(option);
+    });
 }
 
 function renderWpList() {
@@ -295,9 +279,14 @@ function loadWpPost(id) {
     document.getElementById('edit-title').value = currentWpPost.title.rendered;
     document.getElementById('edit-content').innerHTML = currentWpPost.content.rendered;
 
-    const sel = document.getElementById('edit-category');
-    if (sel && currentWpPost.categories && currentWpPost.categories.length > 0) {
-        sel.value = currentWpPost.categories[0];
+    const input = document.getElementById('edit-category');
+    if (input && currentWpPost.categories && currentWpPost.categories.length > 0) {
+        // Find category name from ID
+        const catId = currentWpPost.categories[0];
+        const cat = wpCategories.find(c => c.id == catId);
+        if (cat) input.value = cat.name;
+    } else if (input) {
+        input.value = '';
     }
 
     document.getElementById('enhance-single-view').style.display = 'flex';
@@ -516,14 +505,26 @@ async function runBatchOptimize(isAuto = false) {
 async function updateAndNext() {
     if (!currentWpPost) return alert("No post selected!");
 
-    const btn = document.getElementById('btn-update-next') || event.target; // Fallback if ID missing
+    const btn = document.getElementById('btn-update-next') || event.target;
     const originalText = btn.innerText;
     btn.innerText = "Updating...";
     btn.disabled = true;
 
     const title = document.getElementById('edit-title').value;
-    const category = document.getElementById('edit-category').value;
+    const categoryInput = document.getElementById('edit-category').value;
     const content = document.getElementById('edit-content').innerHTML;
+
+    // Handle category - find ID from name or use NEW: prefix
+    let category = categoryInput;
+    if (categoryInput) {
+        const existingCat = wpCategories.find(c => c.name === categoryInput);
+        if (existingCat) {
+            category = existingCat.id.toString();
+        } else {
+            // Custom category - backend handles NEW: prefix
+            category = "NEW:" + categoryInput;
+        }
+    }
 
     try {
         const res = await fetch('/api_wp_update', {
@@ -539,7 +540,7 @@ async function updateAndNext() {
         const data = await res.json();
 
         if (data.status === 'ok') {
-            logDebug(`Updated post ${currentWpPost.id}: "${title}"`);
+            logDebug(`Updated post ${currentWpPost.id}: \"${title}\"`);
 
             // Find next uncategorized post
             const currentIndex = wpPosts.findIndex(p => p.id === currentWpPost.id);
