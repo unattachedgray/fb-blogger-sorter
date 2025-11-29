@@ -1,0 +1,79 @@
+<h2>Local Posts</h2>
+<div class="posts-grid" id="posts-grid"></div>
+</div>
+</div>
+
+<!-- Tab Content: WP Enhance -->
+<div class="tab-content" id="enhance">
+    <div class="enhance-layout">
+        <!-- Sidebar -->
+        <div class="enhance-sidebar">
+            <div style="padding:15px; border-bottom:1px solid var(--border);">
+                <h3 style="margin:0 0 10px 0; font-size:14px;">WordPress Posts</h3>
+                <div id="wp-fetch-container">
+                    <div style="display:flex; gap:5px; margin-bottom:10px;">
+                        <span style="font-size:11px; color:var(--text-muted);">Total: <strong
+                                id="wp-stat-total">0</strong></span>
+                        <span style="font-size:11px; color:var(--text-muted);">Uncat: <strong
+                                id="wp-stat-uncat">0</strong></span>
+                    </div>
+                    <label style="font-size:12px; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                        <input type="checkbox" id="wp-filter-uncat" checked onchange="fetchWpPosts(true)">
+                        <span>Uncategorized Only</span>
+                    </label>
+                </div>
+            </div>
+            <div id="wp-post-list" style="flex:1; overflow-y:auto; padding:10px;"></div>
+        </div>
+
+        <!-- Main Editor -->
+        <div class="enhance-main">
+            <div id="enhance-single-view" style="padding:20px; display:flex; flex-direction:column; gap:15px;">
+                <h2 style="margin:0;">Edit Post</h2>
+                <div class="editor-row">
+                    <label class="editor-label">Title</label>
+                    <input type="text" id="edit-title" class="editor-input" placeholder="Post title...">
+                </div>
+                <div class="editor-row">
+                    <label class="editor-label">Category</label>
+                    <select id="edit-category" class="editor-select">
+                        <option value="">-- Select Category --</option>
+                    </select>
+                </div>
+                <div class="editor-row">
+                    <label class="editor-label">Content</label>
+                    <div id="edit-content" class="content-preview" contenteditable="true"></div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-magic" id="btn-ai-header" onclick="runAiEnhance()">✨ Magic Enhance</button>
+                    <button class="btn btn-primary" id="btn-batch-ai" onclick="runBatchOptimize()">🚀 Batch
+                        Optimize</button>
+                    <button class="btn btn-success" id="btn-update-next" onclick="updateAndNext()">Update &
+                        Next</button>
+                </div>
+            </div>
+
+            <!-- Rolling Mode -->
+            <div id="rolling-container" style="display:none; flex-direction:column; height:100%;">
+                <div id="rolling-controls"
+                    style="padding:15px; border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:center;">
+                    <button class="btn btn-primary" id="btn-rolling-toggle" onclick="toggleRollingMode()">Start Rolling
+                        Auto-Pilot</button>
+                    <button class="btn btn-danger" onclick="clearRollingQueue()">Clear Queue</button>
+                    <span id="rolling-status-indicator"
+                        style="font-size:11px; font-weight:600; color:var(--success);">IDLE</span>
+                    <label style="margin-left:auto; font-size:12px; display:flex; align-items:center; gap:5px;">
+                        Buffer Size:
+                        <input type="number" id="rolling-buffer-size" value="5" min="1" max="20"
+                            style="width:50px; padding:4px;">
+                    </label>
+                </div>
+                <div id="rolling-list"
+                    style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

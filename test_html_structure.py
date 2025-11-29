@@ -44,20 +44,20 @@ def test_html_structure():
     
     # Test 4: Three tabs exist (live, local, enhance)
     tabs = soup.find_all(class_='tab')
-    if len(tabs) >= 3:
-        print(f"✓ Found {len(tabs)} tabs")
+    if len(tabs) == 3:
+        print(f"✓ Found exactly {len(tabs)} tabs")
         tests_passed += 1
     else:
-        print(f"✗ Only {len(tabs)} tabs found, expected 3+")
+        print(f"✗ Found {len(tabs)} tabs, expected exactly 3")
         tests_failed += 1
     
     # Test 5: Tab content sections exist
     tab_contents = soup.find_all(class_='tab-content')
-    if len(tab_contents) >= 3:
-        print(f"✓ Found {len(tab_contents)} tab content sections")
+    if len(tab_contents) == 3:
+        print(f"✓ Found exactly {len(tab_contents)} tab content sections")
         tests_passed += 1
     else:
-        print(f"✗ Only {len(tab_contents)} tab content sections, expected 3+")
+        print(f"✗ Found {len(tab_contents)} tab content sections, expected exactly 3")
         tests_failed += 1
     
     # Test 6: Required IDs for tabs
