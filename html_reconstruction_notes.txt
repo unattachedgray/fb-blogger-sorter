@@ -1,0 +1,24 @@
+# Reconstructing index.html body
+
+The current HTML file has complete CSS but the `<body>` section (lines 719-726) only contains:
+```html
+<body>
+    <p>Paste a Facebook link below...</p>
+    <input type="text" id="single_link_url"...>
+    <button id="import-btn"...>Fetch Post</button>
+</body>
+```
+
+Need to reconstruct with:
+1. Header with tabs (SNS Import, Local Posts, WP Enhance)
+2. All three tab content sections  
+3. Debug log, stats, controls
+4. Script tag loading
+
+Looking at CSS classes:
+- `.header`, `.header-row-top`, `.header-row-bottom`
+- `.tab-bar`, `.tab`
+- `.tab-content` (for each tab)
+- `.enhance-layout`, `.enhance-sidebar`, etc.
+
+Checking conversation summary for the previous working structure...

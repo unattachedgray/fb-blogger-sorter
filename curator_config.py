@@ -12,6 +12,8 @@ LEARNING_FILE = "ai_learning.json"
 def load_credentials():
     if os.path.exists(CREDENTIALS_FILE):
         try:
-            with open(CREDENTIALS_FILE, 'r') as f: return json.load(f)
-        except: pass
+            with open(CREDENTIALS_FILE, 'r', encoding='utf-8') as f: return json.load(f)
+        except Exception as e:
+            print(f"Error loading credentials: {e}")
+            pass
     return {}

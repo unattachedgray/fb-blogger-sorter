@@ -21,14 +21,18 @@ def wp_api_call(endpoint, method="GET", data=None, creds=None):
         "Content-Type": "application/json"
     }
     
+    print(f"[WP] Request: {method} {url}")
+    
     req = urllib.request.Request(url, method=method, headers=headers)
     if data: req.data = json.dumps(data).encode('utf-8')
     
     ctx = ssl.create_default_context(); ctx.check_hostname = False; ctx.verify_mode = ssl.CERT_NONE
     try:
         with urllib.request.urlopen(req, context=ctx, timeout=30) as res:
+            print(f"[WP] Response: {res.status}")
             return json.loads(res.read()), res.headers
     except Exception as e:
+        print(f"[WP] Error: {e}")
         return {"error": str(e)}, {}
 
 def upload_media(filepath, wp_url, auth_header):

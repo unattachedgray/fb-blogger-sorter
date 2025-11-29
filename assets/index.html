@@ -711,18 +711,315 @@
             color: var(--primary);
             margin-bottom: 5px;
             text-transform: uppercase;
-        }
+
+            .stat-lbl {
+                font-size: 9px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                margin-top: 2px;
+            }
+
+            .stat-sep {
+                width: 1px;
+                height: 20px;
+                background: var(--border);
+            }
+
+            /* Floating Action Buttons */
+            .floating-bottom {
+                position: absolute;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                gap: 15px;
+                z-index: 200;
+                pointer-events: none;
+            }
+
+            .floating-upload {
+                position: absolute;
+                bottom: 30px;
+                right: 30px;
+                z-index: 200;
+            }
+
+            .fab-btn {
+                pointer-events: auto;
+                border: none;
+                border-radius: 30px;
+                padding: 8px 16px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: transform 0.2s;
+            }
+
+            .fab-btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .fab-select {
+                background: var(--primary);
+                color: white;
+            }
+
+            .fab-skip {
+                background: var(--surface);
+                color: var(--text-main);
+                border: 1px solid var(--border);
+            }
+
+            .fab-upload {
+                background: var(--success);
+                color: white;
+            }
+
+            /* Enhance Tab Layout */
+            .enhance-layout {
+                display: flex;
+                height: 100%;
+                width: 100%;
+            }
+
+            .enhance-sidebar {
+                width: 300px;
+                flex: 0 0 300px;
+                border-right: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                background: var(--surface);
+                overflow-y: auto;
+            }
+
+            .enhance-list {
+                flex-grow: 1;
+                overflow-y: auto;
+            }
+
+            .enhance-item {
+                padding: 15px;
+                border-bottom: 1px solid var(--border);
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .enhance-item:hover {
+                background: #e9ecef;
+            }
+
+            .enhance-item.active {
+                background: #e7f1ff;
+                border-left: 4px solid var(--primary);
+            }
+
+            .enhance-main {
+                flex: 1 1 auto;
+                padding: 30px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+            }
+
+            .enhance-card {
+                background: var(--background);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            .editor-row {
+                margin-bottom: 15px;
+            }
+
+            .editor-label {
+                display: block;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-muted);
+                margin-bottom: 6px;
+                text-transform: uppercase;
+            }
+
+            .editor-input,
+            .editor-select {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                font-size: 14px;
+                font-family: inherit;
+            }
+
+            .content-preview {
+                min-height: 300px;
+                max-height: 500px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 20px;
+                background: var(--background);
+                font-size: 15px;
+                line-height: 1.6;
+                outline: none;
+                overflow-y: auto;
+            }
+
+            .content-preview img {
+                max-width: 100%;
+                height: auto;
+                margin: 10px 0;
+                border-radius: 4px;
+            }
+
+            /* Rolling Queue Styles */
+            .rolling-card {
+                background: var(--background);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 10px;
+                margin-bottom: 10px;
+                font-size: 12px;
+                cursor: pointer;
+            }
+
+            .rolling-card.active {
+                border: 2px solid var(--primary);
+                background-color: #f0f8ff;
+            }
+
+            .rolling-card.updating {
+                opacity: 0.6;
+                pointer-events: none;
+                background: #fff3cd;
+            }
+
+            .rolling-status {
+                font-size: 10px;
+                font-weight: bold;
+                color: var(--primary);
+                margin-bottom: 5px;
+                text-transform: uppercase;
+            }
     </style>
     <script src="script.js"></script>
 </head>
 
 <body>
-    <p style="color: var(--text-muted); margin-bottom: 30px;">Paste a Facebook link below. We will try to read the text
-        and image.</p><input type="text" id="single_link_url" class="live-input"
-        placeholder="Paste URL here..."><br><button id="import-btn" class="live-btn" onclick="importSingleLink()">Fetch
-        Post</button></div>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-row-top">
+            <h1 style="margin:0; font-size:18px; font-weight:600;">FB Curator</h1>
+            <div class="tab-bar">
+                <div class="tab active" id="btn-live" onclick="switchTab('live')">SNS Import</div>
+                <div class="tab" id="btn-local" onclick="switchTab('local')">Local Posts</div>
+                <div class="tab" id="btn-enhance" onclick="switchTab('enhance')">WP Enhance</div>
+            </div>
+            <div class="stats-box">
+                <div class="stat-item">
+                    <div class="stat-val" id="stat-ai-calls">0</div>
+                    <div class="stat-lbl">AI Calls</div>
+                </div>
+                <div class="stat-sep"></div>
+                <div class="stat-item">
+                    <div class="stat-val" id="stat-ai-tokens">0</div>
+                    <div class="stat-lbl">Tokens</div>
+                </div>
+            </div>
+            <div id="debug-log-window"
+                style="flex:1; margin-left:15px; max-height:60px; overflow-y:auto; border:1px solid var(--border); border-radius:4px; padding:5px; font-size:10px; font-family: 'JetBrains Mono', monospace; background:#fff;">
+            </div>
+        </div>
+        <div class="header-row-bottom">
+            <div id="header-local-controls" style="display:none; gap:10px; align-items:center;">
+                <button class="btn btn-primary" onclick="toggleSelectAll()">Select All</button>
+                <button class="btn btn-danger" onclick="executeBulk('delete')">Delete Selected</button>
+            </div>
+            <div id="header-enhance-controls" style="display:none; gap:10px; align-items:center;">
+                <button class="btn btn-primary" id="wp-fetch-btn" onclick="fetchWpPosts()">Fetch Posts</button>
+                <label style="font-size:12px; display:flex; align-items:center; gap:5px;">
+                    <input type="checkbox" id="setting-fetch-startup">
+                    <span>Fetch on Startup</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content: SNS Import -->
+    <div class="tab-content active" id="live">
+        <div class="container">
+            <h2 style="margin-top:0;">Import from Facebook</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Paste a Facebook link below. We will try to read
+                the text and image.</p>
+            <input type="text" id="single_link_url" class="filter-input" style="width:100%; margin-bottom:15px;"
+                placeholder="Paste URL here...">
+            <button id="import-btn" class="btn btn-primary" onclick="importSingleLink()">Fetch Post</button>
+        </div>
+    </div>
+
+    <!-- Tab Content: Local Posts -->
+    <div class="tab-content" id="local">
+        <div class="container">
+            <h2>Local Posts</h2>
+            <div class="posts-grid" id="posts-grid"></div>
+        </div>
+    </div>
+
+    <div id="enhance-single-view" style="padding:20px; display:flex; flex-direction:column; gap:15px;">
+        <h2 style="margin:0;">Edit Post</h2>
+        <div class="editor-row">
+            <label class="editor-label">Title</label>
+            <input type="text" id="edit-title" class="editor-input" placeholder="Post title...">
+        </div>
+        <div class="editor-row">
+            <label class="editor-label">Category</label>
+            <select id="edit-category" class="editor-select">
+                <option value="">-- Select Category --</option>
+            </select>
+        </div>
+        <div class="editor-row">
+            <label class="editor-label">Content</label>
+            <div id="edit-content" class="content-preview" contenteditable="true"></div>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-magic" id="btn-ai-header" onclick="runAiEnhance()">✨ Magic
+                Enhance</button>
+            <button class="btn btn-primary" id="btn-batch-ai" onclick="runBatchOptimize()">🚀 Batch
+                Optimize</button>
+            <button class="btn btn-success" id="btn-update-next" onclick="updateAndNext()">Update &
+                Next</button>
+        </div>
+    </div>
+
+    <!-- Rolling Mode -->
+    <div id="rolling-container" style="display:none; flex-direction:column; height:100%;">
+        <div id="rolling-controls"
+            style="padding:15px; border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:center;">
+            <button class="btn btn-primary" id="btn-rolling-toggle" onclick="toggleRollingMode()">Start
+                Rolling Auto-Pilot</button>
+            <button class="btn btn-danger" onclick="clearRollingQueue()">Clear Queue</button>
+            <span id="rolling-status-indicator"
+                style="font-size:11px; font-weight:600; color:var(--success);">IDLE</span>
+            <label style="margin-left:auto; font-size:12px; display:flex; align-items:center; gap:5px;">
+                Buffer Size:
+                <input type="number" id="rolling-buffer-size" value="5" min="1" max="20"
+                    style="width:50px; padding:4px;">
+            </label>
+        </div>
+        <div id="rolling-list"
+            style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px;">
+        </div>
+    </div>
+    </div>
     </div>
     </div>
 </body>
+
 
 </html>
